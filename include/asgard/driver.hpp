@@ -20,6 +20,9 @@
 
 namespace asgard {
 
+const std::size_t UNIX_PATH_MAX = 108;
+const std::size_t buffer_size = 4096;
+
 struct driver_connector {
     //Buffer
     char write_buffer[buffer_size];
