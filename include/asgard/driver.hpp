@@ -18,6 +18,8 @@
 #include <unistd.h>
 #include <signal.h>
 
+#include "utils.hpp" //revoke_root for the drivers
+
 namespace asgard {
 
 const std::size_t UNIX_PATH_MAX = 108;
@@ -151,27 +153,6 @@ inline void unregister_source(driver_connector& driver, int source_id){
         auto nbytes = snprintf(driver.write_buffer, buffer_size, "UNREG_SOURCE %d", source_id);
         sendto(driver.socket_fd, driver.write_buffer, nbytes, 0, (struct sockaddr *) &driver.server_address, sizeof(struct sockaddr_un));
     }
-}
-
-inline bool revoke_root(){
-    if (getuid() == 0) {
-        if (setgid(1000) != 0){
-            std::cout << "asgard:dht11: setgid: Unable to drop group privileges: " << strerror(errno) << std::endl;
-            return false;
-        }
-
-        if (setuid(1000) != 0){
-            std::cout << "asgard:dht11: setgid: Unable to drop user privileges: " << strerror(errno) << std::endl;
-            return false;
-        }
-    }
-
-    if (setuid(0) != -1){
-        std::cout << "asgard:dht11: managed to regain root privileges, exiting..." << std::endl;
-        return false;
-    }
-
-    return true;
 }
 
 } //end of namespace asgard
