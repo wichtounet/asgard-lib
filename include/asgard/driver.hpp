@@ -123,9 +123,9 @@ inline void send_data(driver_connector& driver, int source_id, int sensor_id, do
     sendto(driver.socket_fd, driver.write_buffer, nbytes, 0, (struct sockaddr *) &driver.server_address, sizeof(struct sockaddr_un));
 }
 
-inline void send_event(driver_connector& driver, int source_id, int sensor_id, std::string value){
+inline void send_event(driver_connector& driver, int source_id, int actuator_id, std::string value){
     // Send the data
-    auto nbytes = snprintf(driver.write_buffer, buffer_size, "EVENT %d %d %s", source_id, sensor_id, value.c_str());
+    auto nbytes = snprintf(driver.write_buffer, buffer_size, "EVENT %d %d %s", source_id, actuator_id, value.c_str());
     sendto(driver.socket_fd, driver.write_buffer, nbytes, 0, (struct sockaddr *) &driver.server_address, sizeof(struct sockaddr_un));
 }
 
@@ -139,7 +139,7 @@ inline void unregister_sensor(driver_connector& driver, int source_id, int senso
 
 inline void unregister_actuator(driver_connector& driver, int source_id, int actuator_id){
     // Unregister the actuator, if necessary
-    if(sensor_id >= 0){
+    if(actuator_id >= 0){
         auto nbytes = snprintf(driver.write_buffer, buffer_size, "UNREG_ACTUATOR %d %d", source_id, actuator_id);
         sendto(driver.socket_fd, driver.write_buffer, nbytes, 0, (struct sockaddr *) &driver.server_address, sizeof(struct sockaddr_un));
     }
