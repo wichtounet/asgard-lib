@@ -10,7 +10,8 @@
 #include <cstdlib>
 #include <cstdio>
 
-#include <string> #include <cstring>
+#include <string>
+#include <cstring>
 
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -35,7 +36,7 @@ struct driver_connector {
     struct sockaddr_un server_address;
 };
 
-bool open_driver_connection(driver_connector& driver, const char* client_socket_path, const char* server_socket_path){
+inline bool open_driver_connection(driver_connector& driver, const char* client_socket_path, const char* server_socket_path){
     // Open the socket
     driver.socket_fd = socket(AF_UNIX, SOCK_DGRAM, 0);
     if(driver.socket_fd < 0){
@@ -65,7 +66,7 @@ bool open_driver_connection(driver_connector& driver, const char* client_socket_
     return true;
 }
 
-int register_source(driver_connector& driver, const std::string& source_name){
+inline int register_source(driver_connector& driver, const std::string& source_name){
     socklen_t address_length = sizeof(struct sockaddr_un);
 
     // Register the source
@@ -82,7 +83,7 @@ int register_source(driver_connector& driver, const std::string& source_name){
     return source_id;
 }
 
-int register_sensor(driver_connector& driver, int source_id, const std::string& type, const std::string& name){
+inline int register_sensor(driver_connector& driver, int source_id, const std::string& type, const std::string& name){
     socklen_t address_length = sizeof(struct sockaddr_un);
 
     // Register the sensor
@@ -99,13 +100,13 @@ int register_sensor(driver_connector& driver, int source_id, const std::string& 
     return sensor_id;
 }
 
-void send_data(driver_connector& driver, int source_id, int sensor_id, double value){
+inline void send_data(driver_connector& driver, int source_id, int sensor_id, double value){
     // Send the data
     auto nbytes = snprintf(driver.write_buffer, buffer_size, "DATA %d %d %.2f", source_id, sensor_id, value);
     sendto(driver.socket_fd, driver.write_buffer, nbytes, 0, (struct sockaddr *) &driver.server_address, sizeof(struct sockaddr_un));
 }
 
-void unregister_sensor(driver_connector& driver, int source_id, int sensor_id){
+inline void unregister_sensor(driver_connector& driver, int source_id, int sensor_id){
     // Unregister the sensor, if necessary
     if(sensor_id >= 0){
         auto nbytes = snprintf(driver.write_buffer, buffer_size, "UNREG_SENSOR %d %d", source_id, sensor_id);
@@ -113,7 +114,7 @@ void unregister_sensor(driver_connector& driver, int source_id, int sensor_id){
     }
 }
 
-void unregister_source(driver_connector& driver, int source_id){
+inline void unregister_source(driver_connector& driver, int source_id){
     // Unregister the source, if necessary
     if(source_id >= 0){
         auto nbytes = snprintf(driver.write_buffer, buffer_size, "UNREG_SOURCE %d", source_id);
@@ -121,7 +122,7 @@ void unregister_source(driver_connector& driver, int source_id){
     }
 }
 
-bool revoke_root(){
+inline bool revoke_root(){
     if (getuid() == 0) {
         if (setgid(1000) != 0){
             std::cout << "asgard:dht11: setgid: Unable to drop group privileges: " << strerror(errno) << std::endl;
