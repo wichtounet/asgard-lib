@@ -20,17 +20,10 @@
 #include <unistd.h>
 #include <signal.h>
 
-#include "utils.hpp" //revoke_root for the drivers
+#include "utils.hpp"  //revoke_root for the drivers
+#include "config.hpp" //config for the drivers
 
 namespace asgard {
-
-const std::size_t UNIX_PATH_MAX = 108;
-const std::size_t buffer_size = 4096;
-
-struct KeyValue {
-    std::string key;
-    std::string value;
-};
 
 struct driver_connector {
     //Buffer
@@ -44,42 +37,6 @@ struct driver_connector {
     struct sockaddr_un client_address;
     struct sockaddr_un server_address;
 };
-
-void load_config(std::vector<KeyValue>& config) {
-    std::ifstream file("/etc/asgard/conf");
-    std::string str;
-    std::size_t i = 0;
-
-    while (std::getline(file, str)) {
-        std::istringstream line(str);
-        config.push_back(KeyValue());
-        if (std::getline(line, config[i].key, '=')) {
-            if (std::getline(line, config[i].value)) {
-                i++;
-            }
-        }
-    }
-}
-
-std::string get_string_value(std::vector<KeyValue>& config, const std::string& key) {
-    for (std::size_t i = 0; i < config.size(); ++i) {
-        if (config[i].key == key) {
-            return config[i].value;
-        }
-    }
-    std::cout << "Key not found !" << std::endl;
-    return "";
-}
-
-int get_int_value(std::vector<KeyValue>& config, const std::string& key) {
-    for (std::size_t i = 0; i < config.size(); ++i) {
-        if (config[i].key == key) {
-            return std::stoi(config[i].value);
-        }
-    }
-    std::cout << "Key not found !" << std::endl;
-    return -1;
-}
 
 inline bool open_driver_connection(driver_connector& driver, const char* client_socket_path, const char* server_socket_path) {
     // Open the socket
