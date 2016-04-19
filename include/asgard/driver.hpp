@@ -61,17 +61,17 @@ void load_config(std::vector<KeyValue>& config){
     }
 }
 
-const char* get_string_value(std::vector<KeyValue>& config, std::string key){
+std::string get_string_value(std::vector<KeyValue>& config, const std::string& key){
     for(std::size_t i=0; i<config.size(); ++i){
         if(config[i].key == key){
-            return config[i].value.c_str();
+            return config[i].value;
         }
     }
     std::cout << "Key not found !" << std::endl;
     return "";
 }
 
-int get_int_value(std::vector<KeyValue>& config, std::string key){
+int get_int_value(std::vector<KeyValue>& config, const std::string& key){
     for(std::size_t i=0; i<config.size(); ++i){
         if(config[i].key == key){
             return std::stoi(config[i].value);
