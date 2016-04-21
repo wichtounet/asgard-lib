@@ -31,10 +31,10 @@ inline void load_config(std::vector<KeyValue>& config) {
     }
 }
 
-inline std::string get_string_value(std::vector<KeyValue>& config, const std::string& key) {
+inline const char* get_string_value(std::vector<KeyValue>& config, const std::string& key) {
     for (std::size_t i = 0; i < config.size(); ++i) {
         if (config[i].key == key) {
-            return config[i].value;
+            return config[i].value.c_str();
         }
     }
     std::cout << "Key not found !" << std::endl;
