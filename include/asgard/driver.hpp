@@ -102,6 +102,23 @@ inline int register_sensor(driver_connector& driver, int source_id, const std::s
     return sensor_id;
 }
 
+inline int register_action(driver_connector& driver, int source_id, const std::string& type, const std::string& name) {
+    socklen_t address_length = sizeof(struct sockaddr_un);
+
+    // Register the action
+    auto nbytes = snprintf(driver.write_buffer, buffer_size, "REG_ACTION %d %s %s", source_id, type.c_str(), name.c_str());
+    sendto(driver.socket_fd, driver.write_buffer, nbytes, 0, (struct sockaddr*)&driver.server_address, sizeof(struct sockaddr_un));
+
+    auto bytes_received                   = recvfrom(driver.socket_fd, driver.receive_buffer, buffer_size, 0, (struct sockaddr*)&driver.server_address, &address_length);
+    driver.receive_buffer[bytes_received] = '\0';
+
+    auto action_id = atoi(driver.receive_buffer);
+
+    std::cout << "asgard:driver: remote action(" << name << "):" << action_id << std::endl;
+
+    return action_id;
+}
+
 inline int register_actuator(driver_connector& driver, int source_id, const std::string& name) {
     socklen_t address_length = sizeof(struct sockaddr_un);
 
@@ -135,6 +152,14 @@ inline void unregister_sensor(driver_connector& driver, int source_id, int senso
     // Unregister the sensor, if necessary
     if (sensor_id >= 0) {
         auto nbytes = snprintf(driver.write_buffer, buffer_size, "UNREG_SENSOR %d %d", source_id, sensor_id);
+        sendto(driver.socket_fd, driver.write_buffer, nbytes, 0, (struct sockaddr*)&driver.server_address, sizeof(struct sockaddr_un));
+    }
+}
+
+inline void unregister_action(driver_connector& driver, int source_id, int action_id) {
+    // Unregister the action, if necessary
+    if (action_id >= 0) {
+        auto nbytes = snprintf(driver.write_buffer, buffer_size, "UNREG_ACTION %d %d", source_id, action_id);
         sendto(driver.socket_fd, driver.write_buffer, nbytes, 0, (struct sockaddr*)&driver.server_address, sizeof(struct sockaddr_un));
     }
 }
