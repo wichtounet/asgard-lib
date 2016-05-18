@@ -48,13 +48,12 @@ inline bool open_driver_connection(driver_connector& driver, const char* server_
     server.sin_addr.s_addr = inet_addr(server_socket_addr);
     server.sin_family = AF_INET;
     server.sin_port = htons(server_socket_port);
- 
+
     //Connect to remote server
     if (connect(driver.socket_fd, (struct sockaddr *)&server, sizeof(server)) < 0) {
         std::perror("connect failed. Error");
         return false;
-    }    
-    std::cout << "Connected\n" << std::endl;
+    }
 
     return true;
 }
