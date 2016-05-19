@@ -55,7 +55,6 @@ inline bool open_driver_connection(driver_connector& driver, const char* server_
         std::perror("connect failed. Error");
         return false;
     }
-    std::cout << "Connected\n" << std::endl;
 
     return true;
 }
