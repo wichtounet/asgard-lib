@@ -55,7 +55,6 @@ inline bool open_driver_connection(driver_connector& driver, const char* server_
         std::perror("connect failed. Error");
         return false;
     }
-    std::cout << "Connected\n" << std::endl;
 
     return true;
 }
@@ -83,7 +82,7 @@ inline int register_sensor(driver_connector& driver, int source_id, const std::s
 
     auto sensor_id = atoi(driver.receive_buffer);
 
-    std::cout << "asgard:driver: remote sensor(" << name << "):" << sensor_id << std::endl;
+    std::cout << "asgard:driver: remote sensor(" << name << "): " << sensor_id << std::endl;
 
     return sensor_id;
 }
@@ -98,9 +97,23 @@ inline int register_actuator(driver_connector& driver, int source_id, const std:
 
     auto actuator_id = atoi(driver.receive_buffer);
 
-    std::cout << "asgard:driver: remote actuator(" << name << "):" << actuator_id << std::endl;
+    std::cout << "asgard:driver: remote actuator(" << name << "): " << actuator_id << std::endl;
 
     return actuator_id;
+}
+
+inline int register_action(driver_connector& driver, int source_id, const std::string& type, const std::string& name) {
+    // Register the action
+    auto nbytes = snprintf(driver.write_buffer, buffer_size, "REG_ACTION %d %s %s", source_id, type.c_str(), name.c_str());
+    asgard::send_message(driver.socket_fd, driver.write_buffer, nbytes);
+
+    asgard::receive_message(driver.socket_fd, driver.receive_buffer, buffer_size);
+
+    auto action_id = atoi(driver.receive_buffer);
+
+    std::cout << "asgard:driver: remote action(" << name << "): " << action_id << std::endl;
+
+    return action_id;
 }
 
 inline void send_data(driver_connector& driver, int source_id, int sensor_id, double value) {
@@ -127,6 +140,14 @@ inline void unregister_actuator(driver_connector& driver, int source_id, int act
     // Unregister the actuator, if necessary
     if (actuator_id >= 0) {
         auto nbytes = snprintf(driver.write_buffer, buffer_size, "UNREG_ACTUATOR %d %d", source_id, actuator_id);
+        asgard::send_message(driver.socket_fd, driver.write_buffer, nbytes);
+    }
+}
+
+inline void unregister_action(driver_connector& driver, int source_id, int action_id) {
+    // Unregister the action, if necessary
+    if (action_id >= 0) {
+        auto nbytes = snprintf(driver.write_buffer, buffer_size, "UNREG_ACTION %d %d", source_id, action_id);
         asgard::send_message(driver.socket_fd, driver.write_buffer, nbytes);
     }
 }
